@@ -13,7 +13,7 @@ import model.inventario.Video;
 import model.ventas.Consignacion;
 import model.ventas.Oferta;
 import model.ventas.Subasta;
-import view.ViewAdministrador;
+import interfaz.ViewAdministradorGUI;
 import view.ViewRegistro;
 
 public class Administrador extends Empleado {
@@ -28,7 +28,7 @@ public class Administrador extends Empleado {
 	
 	private ArrayList<Consignacion> consignacionesARevisar = new ArrayList<Consignacion>();
 	
-	private transient ViewAdministrador viewAdministrador;
+	private transient ViewAdministradorGUI viewAdministrador;
 	
 	/*
 	 * Constructor 
@@ -63,12 +63,12 @@ public class Administrador extends Empleado {
 	}
 
 
-	public ViewAdministrador getViewAdministrador() {
+	public ViewAdministradorGUI getViewAdministradorGUI() {
 		return viewAdministrador;
 	}
 
 
-	public void setViewAdministrador(ViewAdministrador viewAdministrador) {
+	public void setViewAdministrador(ViewAdministradorGUI viewAdministrador) {
 		this.viewAdministrador = viewAdministrador;
 	}
 	
