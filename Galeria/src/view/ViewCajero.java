@@ -10,7 +10,7 @@ public class ViewCajero extends View {
 	private Cajero cajero;
 
 	public ViewCajero(Cajero cajero) {
-		cajero.setViewCajero(this);
+		
 		this.cajero = cajero;
 	}
 	

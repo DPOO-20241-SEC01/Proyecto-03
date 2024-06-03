@@ -178,7 +178,7 @@ public class ViewLoginGUI extends JFrame {
                     	galeria.getCentralPersistencia().guardar(galeria);
                         frame.dispose();
                     }else if((tipoUsuario.equals("Comprador"))) {
-                    	Comprador comprador= new Comprador(nombre,apellido,cedula,login,password,tipoUsuario);
+                    	Comprador comprador= new Comprador(nombre,apellido,cedula,login,password,tipoUsuario, "123", "123",1234);
                     	galeria.addUsuario(comprador);
                     	JOptionPane.showMessageDialog(frame, "Comprador registrado correctamente.");
                     	galeria.getCentralPersistencia().guardar(galeria);

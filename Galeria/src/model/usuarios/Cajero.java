@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import model.Galeria;
 import model.ventas.Oferta;
 import model.ventas.Venta;
-import view.ViewCajero;
+import interfaz.ViewCajeroGUI;
 
 
 public class Cajero extends Empleado {
@@ -15,7 +15,7 @@ public class Cajero extends Empleado {
 
 	private ArrayList<Oferta> ofertasAceptadas;
 	
-	private ViewCajero viewCajero;
+	private ViewCajeroGUI viewCajero;
 	
 	/*
 	 * Constructor
@@ -50,12 +50,12 @@ public class Cajero extends Empleado {
 	}
 
 
-	public ViewCajero getViewCajero() {
+	public ViewCajeroGUI getViewCajero() {
 		return viewCajero;
 	}
 
 
-	public void setViewCajero(ViewCajero viewCajero) {
+	public void setViewCajeroGUI(ViewCajeroGUI viewCajero) {
 		this.viewCajero = viewCajero;
 	}
 
