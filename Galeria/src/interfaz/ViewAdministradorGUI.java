@@ -1,26 +1,22 @@
 package interfaz;
 
-
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-
 import model.Galeria;
-import model.persistencia.CentralPersistencia;
 import model.usuarios.Administrador;
 import model.usuarios.Comprador;
 import model.usuarios.Empleado;
 import model.usuarios.Cajero;
 import model.ventas.Oferta;
 import model.ventas.Subasta;
-
+import java.util.*;
+import model.persistencia.CentralPersistencia;
 
 public class ViewAdministradorGUI extends JFrame {
 
-    private Administrador administrador;
+    static Administrador administrador;
 
     public ViewAdministradorGUI(Administrador administrador) {
         this.administrador = administrador;
@@ -47,6 +43,7 @@ public class ViewAdministradorGUI extends JFrame {
         JButton btnRevisarOfertas = new JButton("Revisar ofertas pendientes");
         JButton btnRegistrarEmpleado = new JButton("Registrar empleado");
         JButton btnConfigurarCajero = new JButton("Configurar cajero");
+        JButton btnVerVentasAnuales = new JButton("Ver ventas anuales");
         JButton btnCerrarSesion = new JButton("Cerrar sesión");
 
         btnIngresarPieza.addActionListener(new ActionListener() {
@@ -98,6 +95,13 @@ public class ViewAdministradorGUI extends JFrame {
             }
         });
 
+        btnVerVentasAnuales.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                verVentasAnuales();
+            }
+        });
+
         btnCerrarSesion.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -112,9 +116,19 @@ public class ViewAdministradorGUI extends JFrame {
         panel.add(btnRevisarOfertas);
         panel.add(btnRegistrarEmpleado);
         panel.add(btnConfigurarCajero);
+        panel.add(btnVerVentasAnuales);
         panel.add(btnCerrarSesion);
 
         add(panel);
+    }
+
+    private void verVentasAnuales() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new ViewVentasAnualesGUI(administrador.getGaleria()).setVisible(true);
+            }
+        });
     }
 
     private void ingresarPiezaAInventario() {
@@ -344,9 +358,14 @@ public class ViewAdministradorGUI extends JFrame {
         JFrame frame = new JFrame("Revisar Ofertas Pendientes");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(400, 300);
-
-        JPanel panel = new JPanel(new GridLayout(0, 1));
         
+        JPanel panel = new JPanel(new BorderLayout());
+
+        JLabel OfertasLabel = new JLabel("Las ofertas disponibles son:", JLabel.CENTER);
+        OfertasLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        panel.add(OfertasLabel, BorderLayout.NORTH);
+
+        JPanel ofertasPanel = new JPanel(new GridLayout(0, 1));
         HashMap<String, Oferta> ofertas = administrador.getOfertasARevisar();
         
         for (Oferta oferta : ofertas.values()) {
@@ -369,18 +388,22 @@ public class ViewAdministradorGUI extends JFrame {
                     JOptionPane.showMessageDialog(frame, "Oferta rechazada.");
                 }
             });
-            
+
             JPanel botonesPanel = new JPanel();
             botonesPanel.add(btnAceptar);
             botonesPanel.add(btnRechazar);
             
             ofertaPanel.add(botonesPanel, BorderLayout.SOUTH);
-            panel.add(ofertaPanel);
+            ofertasPanel.add(ofertaPanel);
         }
+        
+        JScrollPane scrollPane = new JScrollPane(ofertasPanel);
+        panel.add(scrollPane, BorderLayout.CENTER);
         
         frame.add(panel);
         frame.setVisible(true);
     }
+
 
     private void registrarEmpleado() {
         JFrame frame = new JFrame("Registrar Empleado");
@@ -473,30 +496,20 @@ public class ViewAdministradorGUI extends JFrame {
         CentralPersistencia centralPersistencia = new CentralPersistencia();
         Galeria galeria;
 
-        Object data = centralPersistencia.cargar(); 
+        Object data = centralPersistencia.cargar();
         if (data instanceof Galeria) {
-           
-                    galeria = (Galeria) data;
-                    galeria.setCentralPersistencia(centralPersistencia);
-                    System.out.println("Galería cargada con éxito");
-                    Administrador admin = new Administrador("Admin", "Admin", "1234", "admin", "password", "Administrador");
-                    galeria.setAdministrador(admin);
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            new ViewAdministradorGUI(admin).setVisible(true);
-                        }
-                    });
-                } else {
-                    galeria = new Galeria();
-                    centralPersistencia.guardar(galeria);
-                    Administrador admin = new Administrador("Admin", "Admin", "1234", "admin", "password", "Administrador");
-                    galeria.setAdministrador(admin);
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            new ViewAdministradorGUI(admin).setVisible(true);
-                        }
-                    });
-                }
-            }
+            galeria = (Galeria) data;
+            galeria.setCentralPersistencia(centralPersistencia);
+            System.out.println("Galería cargada con éxito");
+            Administrador admin = new Administrador("Admin", "Admin", "1234", "admin", "password", "Administrador");
+            galeria.setAdministrador(admin);
+            SwingUtilities.invokeLater(() -> new ViewAdministradorGUI(admin).setVisible(true));
+        } else {
+            galeria = new Galeria();
+            centralPersistencia.guardar(galeria);
+            Administrador admin = new Administrador("Admin", "Admin", "1234", "admin", "password", "Administrador");
+            galeria.setAdministrador(admin);
+            SwingUtilities.invokeLater(() -> new ViewAdministradorGUI(admin).setVisible(true));
         }
-
+    }
+}

@@ -1,6 +1,19 @@
 package model.usuarios;
 
+
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import model.inventario.Pieza;
 //import model.ventas.Consignacion;
@@ -69,6 +82,9 @@ public class Comprador extends Usuario {
 	 */
 	private ArrayList<Oferta> ofertasPendientes = new  ArrayList<Oferta>();
 	
+	private String tarjetaCredito;
+	private String cvcTarjetaCredito;
+	private int saldoTarjetaCredito;
 	
 	/**
 	 * El view del usuario de tipo "Comprador"
@@ -85,7 +101,8 @@ public class Comprador extends Usuario {
 	 * @param password
 	 * @param tipoUsuario
 	 */
-	public Comprador(String nombre, String apellido,  String cedula ,String login, String password, String tipoUsuario) {
+	public Comprador(String nombre, String apellido,  String cedula ,String login, String password, String tipoUsuario, String tarjetaCredito, String cvcTarjetaCredito
+			, int saldoTarjetaCredito) {
 		super(nombre, apellido, cedula, login, password, tipoUsuario);
 		this.valorMaximoCompras = 200000;
 		setSaldoDisponible();
@@ -186,6 +203,7 @@ public class Comprador extends Usuario {
 	public void comprarPieza(String tipoPieza, String idPieza, int valorOferta, String peticion, String metodoPago) {
 		Pieza pieza = galeria.getPiezaPorID(tipoPieza, idPieza);
 		Oferta oferta = new Oferta(pieza, this, valorOferta, peticion, metodoPago);
+		
 		if (peticion != null) {
 			galeria.getAdminstrador().getOfertasARevisar().put(oferta.getIdOferta(), oferta);
 			oferta.getPieza().setPropietario(this);
@@ -194,7 +212,95 @@ public class Comprador extends Usuario {
 			oferta.getPieza().setPropietario(this);
 		
 		
-		}
-	}
+		if (metodoPago == "Tarjeta Credito") {
+			JFrame ventanaPago = new JFrame();
+			ventanaPago.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			ventanaPago.setSize(400, 300);
+			ventanaPago.setLocationRelativeTo(null);
+			JPanel panelTarjeta = new JPanel();
+			JLabel etiquetaNumeroTarje = new JLabel("Ingrese su numero de tarjeta: ");
+			JLabel  etiquetaCVC = new JLabel("Ingrese el cvc de la tarjeta (Numeros de atras)");
+			JTextField numeroTarjeta = new JTextField();
+			JTextField numeroCVC = new JTextField();
+			GridLayout layoutTop = new GridLayout(0,4);
+			JButton botonComprar = new JButton("Comprar");
+			panelTarjeta.setLayout(layoutTop);
+			panelTarjeta.add(etiquetaNumeroTarje);
+			panelTarjeta.add(numeroTarjeta);
+			panelTarjeta.add(etiquetaCVC);
+			panelTarjeta.add(numeroCVC);
+			ventanaPago.add(panelTarjeta);
+			ventanaPago.add(botonComprar);
+			
+			botonComprar.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// TODO Auto-generated method stub
+					String numeros =  numeroTarjeta.getText();
+					String numerosCVC = numeroCVC.getText();
+					if (numeros== tarjetaCredito) {
+						if (numerosCVC == cvcTarjetaCredito) {
+							if (valorOferta >=saldoTarjetaCredito ) {
+                            saldoTarjetaCredito -= valorOferta;
+	                        JOptionPane.showMessageDialog(ventanaPago, "Su transacción fue aprobada por: " + valorOferta );
+	                        galeria.getCajero().getOfertasAceptadas().add(oferta);
+                            ventanaPago.dispose(); 
+                            String[] options = {"JSON", "TXT", "XML"};
+                            String formato = (String) JOptionPane.showInputDialog(ventanaPago, "Seleccione el formato del archivo:","Formato de Archivo", JOptionPane.PLAIN_MESSAGE, null,options,options[0]);
+
+                            if (formato != null) {
+                                switch (formato) {
+                                    case "TXT":
+                                        generarTXT(oferta);
+                                        break;
+                                    case "XML":
+                                        generarXMLe(oferta);
+                                        break;
+                                }
+                            }
+
+                        } else {
+                            JOptionPane.showMessageDialog(ventanaPago, "Su transacción no fue aprobada por falta de cupo en la tarjeta");
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(ventanaPago, "Su transacción no fue aprobada por error en el CVC de la tarjeta");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(ventanaPago, "Su transacción no fue aprobada por errores al ingreso de los datos");
+                }
+            }
+        });
+    }}
 }
 
+private void generarTXT(Oferta oferta) {
+    String invoice = "Cliente: " + oferta.getComprador().getNombre() + "\n" +
+                     "Producto: " + oferta.getPieza().getTituloPieza() + "\n" +
+                     "Cantidad: 1\n" +
+                     "Precio: " + oferta.getValorOferta();
+
+    try (FileWriter file = new FileWriter("invoice.txt")) {
+        file.write(invoice);
+        file.flush();
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
+
+private void generarXMLe(Oferta oferta) {
+    String invoice = "<invoice>\n" +
+                     "    <cliente>" + oferta.getComprador().getNombre() + "</cliente>\n" +
+                     "    <producto>" + oferta.getPieza().getTituloPieza() + "</producto>\n" +
+                     "    <cantidad>1</cantidad>\n" +
+                     "    <precio>" + oferta.getValorOferta() + "</precio>\n" +
+                     "</invoice>";
+
+    try (FileWriter file = new FileWriter("invoice.xml")) {
+        file.write(invoice);
+        file.flush();
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
+}

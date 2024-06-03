@@ -5,21 +5,17 @@ import model.usuarios.Administrador;
 import model.usuarios.Comprador;
 import model.usuarios.Empleado;
 import interfaz.ViewAdministradorGUI;
+import interfaz.ViewEmpleadoGUI;
+import interfaz.*;
 
 public class ViewRegistro extends View {
 
     private Galeria galeria;
 
-    /**
-     * Constructor
-     */
     public ViewRegistro(Galeria galeria) {
         this.galeria = galeria;
     }
 
-    /**
-     * Menús
-     */
     public void mostrarMenuUsuario(String tipoUsuario) {
         if (tipoUsuario.equals("Administrador")) {
             mostrarMenuAdministrador();
@@ -30,9 +26,6 @@ public class ViewRegistro extends View {
         }
     }
 
-    /**
-     * Mostrar el menú de registro para un usuario de tipo "Administrador"
-     */
     public void mostrarMenuAdministrador() {
         System.out.println("\n===========================================");
         System.out.println("Configuración inicial de la Galería");
@@ -43,9 +36,6 @@ public class ViewRegistro extends View {
         registrarNuevoUsuario("Administrador");
     }
 
-    /**
-     * Mostrar el menú para el registro de un usuario de tipo "Empleado".
-     */
     public void mostrarMenuEmpleado() {
         System.out.println("\n===========================================");
         System.out.println("Registrar empleado");
@@ -54,9 +44,6 @@ public class ViewRegistro extends View {
         registrarNuevoUsuario("Empleado");
     }
 
-    /**
-     * Mostrar el menú de registro para un usuario de tipo "Comprador"
-     */
     public void mostrarComprador() {
         System.out.println("\n===========================================");
         System.out.println("Registrarse");
@@ -65,18 +52,12 @@ public class ViewRegistro extends View {
         registrarNuevoUsuario("Comprador");
     }
 
-    /**
-     * Método para registrar un nuevo usuario.
-     * @param tipoUsuario El tipo de usuario a registrar.
-     */
     public void registrarNuevoUsuario(String tipoUsuario) {
-
         String nombre = capitalize(getInput("\nNombre: ").trim());
         String apellido = capitalize(getInput("\nApellido: ").trim());
         String cedula = String.valueOf(getInputInt("\nCédula: "));
 
         switch (tipoUsuario) {
-
         case "Administrador":
             String login = validarLogin();
             String password = validarPassword();
@@ -100,18 +81,13 @@ public class ViewRegistro extends View {
         case "Comprador":
             login = validarLogin();
             password = validarPassword();
-            Comprador comprador = new Comprador(nombre, apellido, cedula, login, password, tipoUsuario);
-            ViewComprador viewComprador = new ViewComprador(comprador);
-            comprador.setViewComprador(viewComprador);
-            viewComprador.mostrarMenu();
+            Comprador comprador = new Comprador(nombre, apellido, cedula, login, password, tipoUsuario, "1312", "123", 1234);
+            ViewCompradorGUI viewComprador = new ViewCompradorGUI(comprador);
+            java.awt.EventQueue.invokeLater(() -> new ViewCompradorGUI(comprador).setVisible(true));
             break;
         }
     }
 
-    /**
-     * Método para validar el nombre de usuario.
-     * @return El nombre de usuario validado.
-     */
     public String validarLogin() {
         while (true) {
             String login = getInput("\nNombre de usuario: ").trim();
@@ -129,10 +105,6 @@ public class ViewRegistro extends View {
         }
     }
 
-    /**
-     * Método para validar la contraseña.
-     * @return La contraseña validada.
-     */
     public String validarPassword() {
         while (true) {
             String password = getInput(
